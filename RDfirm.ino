@@ -4,6 +4,8 @@
 #include "percisionCheck.h"
 #include "userInteraction.h"
 
+
+
 void debugIoInit();
 
 
@@ -25,10 +27,6 @@ void setup() {
   timer3Init();
   PORTB &= 0<<PORTB6;
 
-
-
-
-
 }
 
 
@@ -37,19 +35,18 @@ void loop() {
   // waitting for user to setup all the paramters
   while(1)
   {
-    break; 
     setBPM();
-    delay(500);
     Serial.print(" BPM ");
     Serial.print(BPM,DEC);
+    delay(100);
     
-    uint8_t pressed = edgeDetect(PING)  ;
-    if (pressed & (1<<PORTG1) ) // record is pressed
+    uint8_t pressed = edgeDetect(BTNPIN)  ;
+    if (pressed & (1<<RecordBtn) ) // record is pressed
     {
       ; 
       // run sd card record function
     }
-    else if (pressed & (1<<PORTG2) ) // start is pressed
+    else if (pressed & (1<<StartBtn) ) // start is pressed
     {
       Serial.println("started");
       break;
@@ -75,7 +72,7 @@ void loop() {
       // record diff
     }
 
-    if ( edgeDetect(PING) & (1<<PORTG2) ) { break; }// the start/stop is pressed
+    if ( edgeDetect(BTNPIN) & (1<<StartBtn) ) { break; }// the start/stop is pressed
 
   }
   timer5Mute();

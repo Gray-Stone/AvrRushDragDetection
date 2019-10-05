@@ -6,15 +6,13 @@
 #include "Arduino.h"
 #include "AvrHead.h"
 
+#include "TM1637Display.h"
+
+
+TM1637Display SegDisplay(SegCLK, SegDIO);
 
 uint16_t BPM=200;
 
-
-uint8_t bpmPotPin = A15 ;
-// PG2 -> #39 startStop button
-// PG1 -> #40 button for recording
-// PA0:7 #22:29 LED for rushing
-// PC7:0 #30:37 LED for dragging
 void userIOInit()
 {
 	//// Pin setup
@@ -25,10 +23,14 @@ void userIOInit()
 	// pinMode(bpmPotPin,INPUT);
 
 	// for start, record buttons 
-	DDRG &= ~( (1<<PORTG2) | (1<<PORTG1) );
-	PORTG |= (1<<PORTG2) | (1<<PORTG1) ; // PG2 PG1 input with pullup.
-	// DDRG &= ~ (1<<PORTG2);
-	// PORTG |= (1<<PORTG2);
+	BTNDDR &= ~( (1<<StartBtn) | (1<<RecordBtn) );
+	BTNPORT |= (1<<StartBtn) | (1<<RecordBtn) ; // Setup Btn input with pullup.
+
+	// setup for 7-seg display
+	pinMode(SegCLK,OUTPUT);
+	pinMode(SegDIO,OUTPUT);
+	SegDisplay.setBrightness(0x0f);
+
 
 
 }
@@ -91,5 +93,8 @@ void setBPM()
 	}
 	// update the display 
 	// *use BPM, so a fail timer setting will be rejected on display as well
+    // SegDisplay.clear();
+    SegDisplay.showNumberDec(BPM, false);
 	//********************// 
 }
+
