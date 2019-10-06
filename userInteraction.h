@@ -3,13 +3,14 @@
 
 void setBPM();
 void userIOInit();
-int8_t rdCalculation();
 uint8_t edgeDetect(uint8_t PINx);
 void dispREC();
 void dispLine();
 
+void RDDisp(int8_t direction ,uint8_t ms);
 
 extern uint16_t BPM;
+extern volatile uint8_t  LEDwidth;
 
 #define MAXBPM 400
 #define MINBPM 30
@@ -33,4 +34,8 @@ extern uint16_t BPM;
 
 #define DRAGPORT PORTC
 #define DRAGDDR DDRC
+
+#define PrefectPort PORTL
+#define PrefectPin PORTL7
+#define PrefectDDR DDRL
 

@@ -12,6 +12,7 @@
 TM1637Display SegDisplay(SegCLK, SegDIO);
 
 uint16_t BPM=200;
+volatile uint8_t LEDwidth = 2; //ms
 
 void userIOInit()
 {
@@ -32,30 +33,19 @@ void userIOInit()
 	pinMode(SegDIO,OUTPUT);
 	SegDisplay.setBrightness(0x0f);
 
+	DRAGDDR = 0xFF;
+	RUSHDDR = 0xFF; 
+	DRAGPORT =0;
+	RUSHPORT = 0;
+
+	PrefectDDR |= (1<<DDL7); 
+	PrefectPort |= (1<<PrefectPin);
 }
 
 // * calculate the rush and drag of user input, 
 // * directly read data from timer global variable
 // * return timming difference in ms. positive for rushing, negative for rushing.    
-int8_t rdCalculation()
-{
 
-	// maybe allow output of 0.1ms 
-	int16_t diff =0; // diff (count) * / Y cpms = diff (ms) 
-	// case of dragging
-	if (inputDiff > halfPeriod)
-	{
-		diff = inputDiff - count ; // this should give a negative number 
-	} 
-	else // case of rushing
-	{
-		diff = inputDiff; // this should give a positive number
-	}
-	// TODO: make sure no over flow will happen
-	// TODO: currently within first 1ms each direction will be return as 0. Maybe this needs to be tighter 
-	diff = (diff * cpmsBtm ) / cpmsTop ;
-	return (int8_t) diff ; 
-}
 
 // takes in a port reading. the pin that has a rising edge will return 1.  
 static uint8_t oldValue , presses = 0xFF ;
@@ -114,4 +104,33 @@ void dispLine()
 	};
 	SegDisplay.clear();
 	SegDisplay.setSegments(SEG_REC); 
+}
+
+// Takes the rushing or dragging port, 
+// how many ms from center 
+// (0 for inside clear zone, and direction is ignored)
+void RDDisp(int8_t direction ,uint8_t ms)
+{
+	// Px0 is LED #8 
+	// Px7 is LED #1 
+	DRAGPORT =0xFF; 
+	RUSHPORT = 0xFF; // turn all off
+	PrefectPort &= ~(1<<PrefectPin);
+
+	if (ms==0)
+	{
+		PrefectPort |= (1<<PrefectPin); // Turn on Prefect LED
+		return ;
+	}
+	if (direction>0 )
+	{
+	 	RUSHPORT = ~( 0b10000000 >> ((ms-1)/LEDwidth )) ; // pin is connected to negative of LED, pull low to turn on.  
+		return ;
+	}
+	if (direction <0)
+	{
+		DRAGPORT = ~( 0b10000000 >> ((ms-1)/LEDwidth) ) ; 
+		return ; 
+	}
+	
 }

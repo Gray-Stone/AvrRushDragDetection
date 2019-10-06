@@ -2,18 +2,22 @@
 #include "AvrHead.h"
 #include "Timer.h"
 #include "Arduino.h"
+#include "userInteraction.h"
 
 //////////// globals //////////////
 
 uint8_t cpmsTop = 250; // count per ms 
 uint8_t cpmsBtm = 1;
 uint32_t count = 25000;
+uint16_t halfPeriod =25000 ; // this is to speed up calculation
+volatile uint16_t beatNumber =0; // record how many beat played reset on start 
 
 volatile uint16_t inputDiff =0xFFFF; // since the period is always smaller then 0xFFFF, a 0xFFFF means no input
 volatile uint8_t missInput = 0; // indicate if there is a missed input
-uint16_t halfPeriod =25000 ; // this is to speed up calculation
+uint8_t prefectZoneTicks=0; 
+uint16_t prefectZone = 100 ; //us
 
-volatile uint16_t beatNumber =0; // record how many beat played reset on start 
+const uint8_t MetronomePulseWidth = 5 //ms
 
 volatile uint8_t logArray[LOGSize] = {0} ;
 volatile uint16_t logIndex =0;
@@ -77,9 +81,17 @@ void timer5Mute()
 
 void timer5Play()
 {
-  // OCR5C = OCR5A - 65 ; // set to about 2 ms 
-  OCR5C = 150; // set to about 2 ms 
+  // fake input setup, for debug use
+  // OCR5C = OCR5A - 30 ; // set to about 0.5 ms Drag
+  OCR5C = 30; // set to about 0.5 ms Rush 
+
+  // init variables
+  OCR5B = cpmsTop * MetronomePulseWidth / cpmsBtm; // metronome on time pluse for about 5ms
   beatNumber =0; 
+  missInput =0;
+  logIndex=0;
+
+  // turn on timer
   TCCR5A |=  (0b10<<COM5A0) | (0b10<<COM5B0);
   TCCR5A |= (0b11<<COM5C0);
   TCCR5B |=  0<<ICNC5 | 1<<ICES5 ;
@@ -93,14 +105,11 @@ uint8_t timer5ParamSet(uint16_t bpm) // measured to be 88us to run
   // case of out of range bpm 
   if ( (bpm < 10) || (bpm > 700 ) ) { return 0 ; }
 
-
-
   // X BPM, Y count per ms
   // 60*1000*Y/X = count per beat 
   // use 256 prescaler for 60BPM and above, 1024 for below. 
 
   // count per ms is not round, split into top and buttom
-
 
   if( bpm<60 ) // use prescaler of 1024 below 60bpm
   {
@@ -108,6 +117,7 @@ uint8_t timer5ParamSet(uint16_t bpm) // measured to be 88us to run
     TCCR5B |= (0b101<<CS50) ; 
     cpmsTop = 125;
     cpmsBtm = 8;
+    prefectZoneTicks = prefectZone / 64 ; // 64ns per tick
   }
   else if (bpm < 240 ) // use prescaler of 256 from 60-240bpm
   {
@@ -115,6 +125,8 @@ uint8_t timer5ParamSet(uint16_t bpm) // measured to be 88us to run
     TCCR5B |= (0b100<<CS50) ; 
     cpmsTop = 125;
     cpmsBtm = 2;
+    prefectZoneTicks = prefectZone / 16 ; // 16ns per tick
+
   }
   else              // use prescaler of 64 above 240bpm
   {
@@ -122,6 +134,7 @@ uint8_t timer5ParamSet(uint16_t bpm) // measured to be 88us to run
     TCCR5B |= (0b011<<CS50) ; 
     cpmsTop = 250;
     cpmsBtm = 1;
+    prefectZoneTicks = prefectZone / 4 ; // 4ns per tick
   }
 
   // calculate counter top value
@@ -133,6 +146,58 @@ uint8_t timer5ParamSet(uint16_t bpm) // measured to be 88us to run
   halfPeriod = (uint16_t) count/2;
   return 1;
 }
+
+
+
+// calculate how off is user input, also update the display. 
+// return how much off in ms, 0 for in prefect zone. 
+int8_t rdDetect()
+{
+  int32_t diffTick =0; // 32 bit to make space for calculation
+  int8_t rdSign =0; // 1 for rushing, -1 for dragging
+  static int8_t diffms ; // difference in millsecond
+
+  // case of dragging
+	if (inputDiff > halfPeriod)
+	{
+		diffTick = count- inputDiff; // still just get a positive diff 
+    rdSign = -1 ; 
+	} 
+	else // case of rushing
+	{
+		diffTick = inputDiff; 
+    rdSign = 1  ;
+	}
+
+  // case of prefect
+  if (diffTick <= prefectZoneTicks )
+  {
+    diffms=0;
+    RDDisp(0,0);
+    return 0; 
+  }
+
+  // non prefect
+  diffTick -= prefectZoneTicks; 
+  diffTick = (diffTick * cpmsBtm ) / cpmsTop +1 ;
+  if ( diffTick > MAXdiffms ) // case of overflow
+  {
+    diffms = MAXdiffms; 
+  }
+  else 
+  {
+    diffms = diffTick ; 
+  }
+
+  RDDisp(rdSign, diffms);
+
+  return rdSign * diffms ; 
+
+}
+
+
+
+
 
 
 // timer3 for general delay use
@@ -165,7 +230,7 @@ void timer3OverflowClear()
 
 ISR(TIMER5_CAPT_vect)
 {
-  PORTB ^= 1<<PORTB7;
+  // PORTB ^= 1<<PORTB7;
 
  // to prevent next input value destory previous one
   if (inputDiff != 0xFFFF)

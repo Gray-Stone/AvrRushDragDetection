@@ -29,8 +29,7 @@ void setup() {
   timer3Init();
 
   SDInit();
-
-}
+  }
 
 
 void loop() {
@@ -64,8 +63,7 @@ void loop() {
   timer5ParamSet(BPM);
   Serial.println("---Start Playing---");
 
-  missInput =0;
-  logIndex=0;
+  
   dispLine();
   delay(500);
 
@@ -76,10 +74,8 @@ void loop() {
     // When user input appeared
     if (inputDiff != 0xFFFF)  
     {
-      OCR5C+=10;
-      int8_t diff = rdCalculation(); 
-     
-      // display diff 
+      OCR5C =0xFFFF & ( OCR5C - 2) ;
+      int8_t diff = rdDetect(); 
       Serial.println(diff,DEC); 
       inputDiff = 0xFFFF; //reset the variable, ready for next one. 
     
@@ -103,6 +99,8 @@ void loop() {
   Serial.println("---Done Playing---");
   dispLine();
   delay(500);
+  DRAGPORT =0;
+	RUSHPORT = 0;
 
 }
 

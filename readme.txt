@@ -1,4 +1,7 @@
 
+Recording: 
+Rushing is positive, Dragging is Negative
+
 PIN: 
 
 SD card #50:53 (PB3:0) (MISO,MOSI,SCK,SS)
@@ -16,6 +19,7 @@ User Interface:
 RD LEDs
 	Rushing: #29:22 (PA7:0) (#22,PA0 most rush)
 	Dragging: #30:37 (PC7:0) (#37,PC0, most drag) 
+	Prefect: #42 (PL7)
 
 External Component: 
 
