@@ -5,6 +5,8 @@ void setBPM();
 void userIOInit();
 int8_t rdCalculation();
 uint8_t edgeDetect(uint8_t PINx);
+void dispREC();
+void dispLine();
 
 
 extern uint16_t BPM;

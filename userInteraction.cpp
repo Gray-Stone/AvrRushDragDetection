@@ -25,13 +25,12 @@ void userIOInit()
 	// for start, record buttons 
 	BTNDDR &= ~( (1<<StartBtn) | (1<<RecordBtn) );
 	BTNPORT |= (1<<StartBtn) | (1<<RecordBtn) ; // Setup Btn input with pullup.
+	edgeDetect(BTNPIN); // flash the values
 
 	// setup for 7-seg display
 	pinMode(SegCLK,OUTPUT);
 	pinMode(SegDIO,OUTPUT);
 	SegDisplay.setBrightness(0x0f);
-
-
 
 }
 
@@ -59,7 +58,7 @@ int8_t rdCalculation()
 }
 
 // takes in a port reading. the pin that has a rising edge will return 1.  
-	static uint8_t oldValue , presses ;
+static uint8_t oldValue , presses = 0xFF ;
 uint8_t edgeDetect(uint8_t PINx)
 {
 	
@@ -68,8 +67,6 @@ uint8_t edgeDetect(uint8_t PINx)
 	oldValue = PINx ; 
 	return presses; 
 }
-
-
 
 
 // this function loops
@@ -98,3 +95,23 @@ void setBPM()
 	//********************// 
 }
 
+void dispREC()
+{
+	uint8_t SEG_REC[] = {
+	SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,   // R
+	SEG_A | SEG_D | SEG_E | SEG_F | SEG_G ,           // E
+	SEG_A | SEG_D | SEG_E | SEG_F,                           // C
+	SEG_G           									// -
+	};
+	SegDisplay.clear();
+	SegDisplay.setSegments(SEG_REC); 
+}
+
+void dispLine()
+{
+	uint8_t SEG_REC[] = {
+	SEG_G,  SEG_G ,	SEG_G,	SEG_G
+	};
+	SegDisplay.clear();
+	SegDisplay.setSegments(SEG_REC); 
+}

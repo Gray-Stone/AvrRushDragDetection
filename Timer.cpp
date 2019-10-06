@@ -15,6 +15,9 @@ uint16_t halfPeriod =25000 ; // this is to speed up calculation
 
 volatile uint16_t beatNumber =0; // record how many beat played reset on start 
 
+volatile uint8_t logArray[LOGSize] = {0} ;
+volatile uint16_t logIndex =0;
+
 // * Setup I/O pins used by timer5
 void timer5PinSetup()
 {
@@ -75,7 +78,7 @@ void timer5Mute()
 void timer5Play()
 {
   // OCR5C = OCR5A - 65 ; // set to about 2 ms 
-  OCR5C = 60; // set to about 2 ms 
+  OCR5C = 150; // set to about 2 ms 
   beatNumber =0; 
   TCCR5A |=  (0b10<<COM5A0) | (0b10<<COM5B0);
   TCCR5A |= (0b11<<COM5C0);

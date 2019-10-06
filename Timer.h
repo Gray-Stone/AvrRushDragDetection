@@ -18,3 +18,8 @@ extern uint16_t halfPeriod ;
 extern uint32_t count;
 extern volatile uint8_t missInput ; 
 
+extern volatile uint16_t beatNumber;
+#define LOGSize 5000
+extern volatile uint8_t logArray[LOGSize];
+extern volatile uint16_t logIndex ;
+

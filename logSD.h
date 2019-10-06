@@ -1,0 +1,2 @@
+bool SDInit();
+bool SDDump();
