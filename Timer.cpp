@@ -17,7 +17,7 @@ volatile uint8_t missInput = 0; // indicate if there is a missed input
 uint8_t prefectZoneTicks=0; 
 uint16_t prefectZone = 100 ; //us
 
-const uint8_t MetronomePulseWidth = 5 //ms
+const uint8_t MetronomePulseWidth = 5 ;//ms
 
 volatile uint8_t logArray[LOGSize] = {0} ;
 volatile uint16_t logIndex =0;

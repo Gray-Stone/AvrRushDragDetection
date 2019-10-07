@@ -30,7 +30,7 @@ bool SDDump()
 	// 	 ;
 	// }
   
- 	File dataFile = SD.open("log00.csv", FILE_WRITE);
+ 	File dataFile = SD.open("RDrecord.csv", FILE_WRITE);
 
 	// if the file is available, write to it:
 	if ( ! dataFile) 
@@ -44,7 +44,8 @@ bool SDDump()
 	
 	String info = "BPM : " + String(BPM) ; 
 	dataFile.println(info);
-	dataFile.println("Beat Index, timing offset ");	// header for data
+	dataFile.println("Rushing is positive Dragging is Negative");
+	dataFile.println("Beat # , Rush/Drag ");	// header for data
 
 	for (uint16_t i=0; i<logIndex-2 ;i+=3)
 	{
