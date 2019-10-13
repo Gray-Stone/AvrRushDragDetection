@@ -12,14 +12,17 @@ PIN Assignment:
 	SD card #50:53 (PB3:0) (MISO,MOSI,SCK,SS)
 	Timer:
 		Metronome tick: #45 (PL4 -> OC5B) ==>> Also used to drive metronome LED
-		Fake lagged input #44 (PL5 -> OC5C) 
+		Fake lagged input #44 (PL5 -> OC5C) ==>> could be wired to user signal input for self test
 		User Signal input #48 (PL1 -> ICP5)
 
 	User Interface:
 		Metronome Pot: 	ADC15 (PK7)
 		Metronome LEDs: #18:19 (PD2:3) (CLK,DIO)
 		Start Btn : 	#17 (PH0)
-		Record Btn: 	#16 (PH1)
+		Aux Btn: 	#16 (PH1) 
+			-->> currently called the record button in code. 
+			-->> record should be changed to everything after play.
+			-->> Aux Btn should be emptied for something else. 
 
 	RD LEDs
 		Rushing: #29:22 (PA7:0) (#22,PA0 most rush)

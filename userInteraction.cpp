@@ -12,7 +12,7 @@
 TM1637Display SegDisplay(SegCLK, SegDIO);
 
 uint16_t BPM=200;
-volatile uint8_t LEDwidth = 2; //ms
+volatile uint8_t LEDwidth = 5; //ms
 
 void userIOInit()
 {

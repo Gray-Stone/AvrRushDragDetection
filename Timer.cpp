@@ -22,6 +22,8 @@ const uint8_t MetronomePulseWidth = 5 ;//ms
 volatile uint8_t logArray[LOGSize] = {0} ;
 volatile uint16_t logIndex =0;
 
+const uint8_t captureEdge = 0;
+
 // * Setup I/O pins used by timer5
 void timer5PinSetup()
 {
@@ -59,7 +61,7 @@ void timer5Init()
 
   TCCR5A =  (0b10<<COM5A0) | (0b10<<COM5B0) | (0b11<<WGM50);
   TCCR5A |= (0b11<<COM5C0) ; //additional COMP C output for testing
-  TCCR5B =  0<<ICNC5 | 1<<ICES5 | 0b11<<WGM52 | (0b11<CS50) ; // preserve the timer. 
+  TCCR5B =  0<<ICNC5 | (captureEdge<<ICES5) | 0b11<<WGM52 | (0b11<CS50) ; // preserve the timer. 
   TIMSK5 = (1<<ICIE5) | (1<<TOIE5);
 
   // 0b10   1/8   prescaler,  = 2MHz; 0.5us per count
@@ -76,7 +78,7 @@ void timer5Mute()
   TIMSK5=0;
   TCCR5A &= ~ (0b1111<<COM5B0); // clear output
   TCCR5A &= ~(0b11<<COM5C0);
-  TCCR5B &= ~ (1<<ICES5);
+  // TCCR5B &= ~ (1<<ICES5);
 }
 
 void timer5Play()
@@ -94,7 +96,7 @@ void timer5Play()
   // turn on timer
   TCCR5A |=  (0b10<<COM5A0) | (0b10<<COM5B0);
   TCCR5A |= (0b11<<COM5C0);
-  TCCR5B |=  0<<ICNC5 | 1<<ICES5 ;
+  // TCCR5B |=  0<<ICNC5 | captureEdge<<ICES5 ;
   TIMSK5 = (1<<ICIE5) | (1<<TOIE5);
 }
 
