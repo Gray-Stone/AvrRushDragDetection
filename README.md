@@ -1,7 +1,8 @@
 
 Rushing Dragging:
 
-	//describ the device
+	// A simple device that detects if the input notes are rushing or dragging compare to the metronome (internal) 
+	// Analog frontend is not included in this project, the input notes need to be properly shaped to be a short pulse. The device is set to detect rising edge. 
 
 
 Data Convension: 
