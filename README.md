@@ -47,5 +47,6 @@ PIN Assignment:
 			TM1637 Libiary (included in subfolder)
 
 Work for futures: 
-
+	A analog frontend to precess the signal directly from interestments. 
+	Better display for setting the tempo and general controls. 
 
